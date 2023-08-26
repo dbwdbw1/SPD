@@ -1,19 +1,11 @@
+import sys
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver import ChromeOptions,ActionChains
+from selenium.webdriver import ActionChains
 import time
 from sqlite3_model import GoodsInfo, SessionContext
-
-
-# 行星减速器
-url = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&n=y&netType=1%2C11%2C16&spm=a260k.dacugeneral.search.0'
-# 硬齿面减速机、行星减速机
-# url1 = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&n=y&netType=1%2C11%2C16&spm=a260k.dacugeneral.search.0&beginPage=1&featurePair=1835%3A44231132%3B3310%3A23539333%3B9112%3A94585628'
-
-url1 = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&spm=a26352.13672862.searchbox.input'
-# 当前页（断了之后）
-# url5 = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&n=y&netType=16&spm=a260k.dacugeneral.search.0&beginPage=5#sm-filtbar'
-now_url = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&spm=&beginPage=1&featurePair=1835%3A44231132#sm-filt'
+from sqlit_spider.consts import LOGIN_URL, NOW_URL, DOMAIN_1688
 
 
 def driver_init():
@@ -52,13 +44,13 @@ def driver_init():
 
     return driver
 
+
 # 打开链接获取商品的详细信息
 def get_goods_detail(driver, link):
-    
     while True:
         try:
             # 打开新窗口
-            driver.execute_script("window.open('"+link+"')")
+            driver.execute_script("window.open('" + link + "')")
             # 等待浏览器加载完毕
             driver.implicitly_wait(7)
             # 获取所有窗口句柄
@@ -78,12 +70,13 @@ def get_goods_detail(driver, link):
             # 获取商品信息
             goods_div = driver.find_elements(By.XPATH, '//div[@class="offer-attr-list"]/div[@class="offer-attr-item"]')
             # 获取地址信息
-            address_div = driver.find_element(By.XPATH, '//div[@id="shop-container-footer"]//div[@style="text-align: center;"]/p')
+            address_div = driver.find_element(By.XPATH,
+                                              '//div[@id="shop-container-footer"]//div[@style="text-align: center;"]/p')
             # 获取厂家名称
             factory_name = address_div.find_elements(By.TAG_NAME, 'span')[0].text
             address = address_div.find_elements(By.TAG_NAME, 'span')[1].text.replace('地址：', '')
             print(factory_name, address)
-            
+
             print('-----------------')
             # 定义商品详情表的数据字典
             data = []
@@ -103,8 +96,9 @@ def get_goods_detail(driver, link):
             driver.switch_to.window(original_window)
             # 返回商品详情表的数据字典
             return (str(data), address, factory_name)
-        
-        except:
+
+        except ValueError as e:
+            print("捕获到异常:", e)
             # 手动处理滑动验证
             input('请手动滑动验证码，输入任意字符继续：')
             continue
@@ -112,7 +106,7 @@ def get_goods_detail(driver, link):
 
 def get_goods_info(driver):
     # 获取商品信息的列表
-    goods_list =  driver.find_element(By.ID, 'sm-offer-list').find_elements(By.CLASS_NAME, 'space-offer-card-box')
+    goods_list = driver.find_element(By.ID, 'sm-offer-list').find_elements(By.CLASS_NAME, 'space-offer-card-box')
     print('-----------------')
     print('开始爬取数据，数据长度为：', len(goods_list))
     for li in goods_list:
@@ -131,23 +125,41 @@ def get_goods_info(driver):
             # 获取商品详细信息
             detail_data, address, factory_name = get_goods_detail(driver, link)
             # 插入数据
-            goods = GoodsInfo(title=title, price=price, sale_sum=sale_sum, link=link, detail=detail_data, address=address, factory_name=factory_name)
+            goods = GoodsInfo(title=title, price=price, sale_sum=sale_sum, link=link, detail=detail_data,
+                              address=address, factory_name=factory_name)
             session.add(goods)
             session.commit()
+
+
+def check_login_redirect(web_driver):
+    max_check_times = 10
+    for i in range(max_check_times):
+        if web_driver.current_url.startswith(DOMAIN_1688):
+            return True
+        else:
+            time.sleep(2)
+    return False
+
 
 # 程序入口
 if __name__ == '__main__':
     driver = driver_init()
     driver.implicitly_wait(3)
-    
+    driver.get(LOGIN_URL)
+    time.sleep(3)
+    if not check_login_redirect(driver):
+        print('未检测到登录行为。请关闭浏览器并重启程序后进行登录以继续使用。')
+        driver.quit()
+        sys.exit()
+
     # 打开链接获取商品信息
-    driver.get(now_url)
+    driver.get(NOW_URL)
     # 睡眠3秒，等待浏览器加载完毕
     time.sleep(3)
 
     # 循环爬取40页数据
     for i in range(40):
-        print(f'-----------------第{i+1}页-----------------')
+        print(f'-----------------第{i + 1}页-----------------')
         # 等待浏览器加载完毕
         driver.implicitly_wait(7)
         # 获取当前窗口句柄
@@ -171,10 +183,9 @@ if __name__ == '__main__':
         get_goods_info(driver)
         # 点击下一页
         try:
-           next_btn.click()
+            next_btn.click()
         except:
             break
-
 
 print('-----------------')
 print('爬取完毕！')

@@ -11,7 +11,7 @@ auto_taobao.py 是使用 selenium 框架直接操纵浏览器进行数据爬取,
 
 ### 1688网站：
 
-在 ./sqlit_spider 文件夹下的 get_1688_to_sqlite3.py 是主体程序，直接运行就可以爬取数据
+在 ./sqlit_spider 文件夹下的 run_1688.py 是主体程序，直接运行就可以爬取数据
 
 sqlite3_model.py 是 sqlite3 数据库模型文件
 
