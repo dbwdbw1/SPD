@@ -1,0 +1,9 @@
+from image_search.run_image_search import get_image_search_url
+from sqlit_spider.run_1688 import start_crawler
+
+# 总入口
+# 1.获取图片搜索url列表
+# 2.启动浏览器模拟人爬取信息
+if __name__ == '__main__':
+    urls = get_image_search_url()
+    start_crawler()

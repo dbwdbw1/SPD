@@ -13,3 +13,11 @@ url1 = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F
 # 当前页（断了之后）
 # url5 = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&n=y&netType=16&spm=a260k.dacugeneral.search.0&beginPage=5#sm-filtbar'
 NOW_URL = 'https://s.1688.com/selloffer/offer_search.htm?keywords=%D0%D0%D0%C7%BC%F5%CB%D9%C6%F7&spm=&beginPage=1&featurePair=1835%3A44231132#sm-filt'
+
+# 通用header
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+}
+
+# 查询图片api的app_key
+app_key = "12574478"

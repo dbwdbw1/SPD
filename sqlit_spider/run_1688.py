@@ -1,11 +1,12 @@
 import sys
+import time
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
-import time
-from sqlite3_model import GoodsInfo, SessionContext
-from sqlit_spider.consts import LOGIN_URL, NOW_URL, DOMAIN_1688
+from selenium.webdriver.common.by import By
+
+from consts import LOGIN_URL, NOW_URL, DOMAIN_1688
+from sqlit_spider.sqlite3_model import SessionContext, GoodsInfo
 
 
 def driver_init():
@@ -46,7 +47,7 @@ def driver_init():
 
 
 # 打开链接获取商品的详细信息
-def get_goods_detail(driver, link):
+def get_goods_detail(driver, link, original_window):
     while True:
         try:
             # 打开新窗口
@@ -67,14 +68,27 @@ def get_goods_detail(driver, link):
             except:
                 pass
             time.sleep(1)
-            # 获取商品信息
-            goods_div = driver.find_elements(By.XPATH, '//div[@class="offer-attr-list"]/div[@class="offer-attr-item"]')
-            # 获取地址信息
-            address_div = driver.find_element(By.XPATH,
-                                              '//div[@id="shop-container-footer"]//div[@style="text-align: center;"]/p')
+
+            try:
+                # 获取商品信息
+                goods_div = driver.find_elements(By.XPATH,
+                                                 '//div[@class="offer-attr-list"]/div[@class="offer-attr-item"]')
+            except Exception as e:
+                print('商品信息解决出错，link:', link, 'err: ', e)
+                goods_div = []
+            try:
+                # 获取地址信息
+                address_div = driver.find_element(
+                    By.XPATH,
+                    '//div[@id="shop-container-footer"]//div[@style="text-align: center;"]/p'
+                )
+                factory_name = address_div.find_elements(By.TAG_NAME, 'span')[0].text
+                address = address_div.find_elements(By.TAG_NAME, 'span')[1].text.replace('地址：', '')
+            except Exception as e:
+                print('地址信息解决出错，link:', link, 'err: ', e)
+                factory_name = '工厂名获取出错'
+                address = '工厂名获取出错'
             # 获取厂家名称
-            factory_name = address_div.find_elements(By.TAG_NAME, 'span')[0].text
-            address = address_div.find_elements(By.TAG_NAME, 'span')[1].text.replace('地址：', '')
             print(factory_name, address)
 
             print('-----------------')
@@ -104,7 +118,7 @@ def get_goods_detail(driver, link):
             continue
 
 
-def get_goods_info(driver):
+def get_goods_info(driver, original_window):
     # 获取商品信息的列表
     goods_list = driver.find_element(By.ID, 'sm-offer-list').find_elements(By.CLASS_NAME, 'space-offer-card-box')
     print('-----------------')
@@ -123,7 +137,7 @@ def get_goods_info(driver):
         # 插入数据
         with SessionContext() as session:
             # 获取商品详细信息
-            detail_data, address, factory_name = get_goods_detail(driver, link)
+            detail_data, address, factory_name = get_goods_detail(driver, link, original_window)
             # 插入数据
             goods = GoodsInfo(title=title, price=price, sale_sum=sale_sum, link=link, detail=detail_data,
                               address=address, factory_name=factory_name)
@@ -142,7 +156,7 @@ def check_login_redirect(web_driver):
 
 
 # 程序入口
-if __name__ == '__main__':
+def start_crawler():
     driver = driver_init()
     driver.implicitly_wait(3)
     driver.get(LOGIN_URL)
@@ -180,14 +194,13 @@ if __name__ == '__main__':
         time.sleep(1)
 
         # 获取商品信息
-        get_goods_info(driver)
+        get_goods_info(driver, original_window)
         # 点击下一页
         try:
             next_btn.click()
         except:
             break
-
-print('-----------------')
-print('爬取完毕！')
-# 关闭浏览器
-driver.quit()
+    print('-----------------')
+    print('爬取完毕！')
+    # 关闭浏览器
+    driver.quit()

@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker
 
 # 创建对象的基类
 Base = declarative_base()
+
 
 class GoodsInfo(Base):
     __tablename__ = 'goods_info'
@@ -17,9 +18,10 @@ class GoodsInfo(Base):
     address = Column(String(200))
     # 厂家名称
     factory_name = Column(String(100))
+
     def __repr__(self):
-        return "<GoodsInfo(title='%s', price='%s', sale_sum='%s', link='%s')>" % (self.title, self.price, self.sale_sum, self.link, self.detail)
-    
+        return f"<GoodsInfo(title='{self.title}', price='{self.price}', sale_sum='{self.sale_sum}', link='{self.link}')>"
+
 
 class GoodsDetail(Base):
     __tablename__ = 'goods_detail'
@@ -59,8 +61,10 @@ class GoodsDetail(Base):
     rating_V = Column(String(100))
     # 额定电流
     rating_A = Column(String(100))
+
     def __repr__(self):
         return "<GoodsInfo(type='%s')>" % (self.type)
+
 
 # class GoodsDetail(Base):
 #     __tablename__ = 'goods_detail'
@@ -93,20 +97,20 @@ class GoodsDetail(Base):
 #         return "<GoodsInfo(id='%s')>" % (self.id)
 
 # 链接数据库，创建数据库表
-engine = create_engine('sqlite:///spider1688_5.db', echo=True)
+engine = create_engine('sqlite:///spider1688_5.db')
 Base.metadata.create_all(engine)
 # 创建会话
 Session = sessionmaker(bind=engine)
+
 
 # 使用上下文管理器管理会话
 class SessionContext(object):
     def __init__(self):
         self.session = Session()
+
     def __enter__(self):
         return self.session
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.session.commit()
         self.session.close()
-
-
-
