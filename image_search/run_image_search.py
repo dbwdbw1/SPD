@@ -11,9 +11,9 @@ def get_image_search_url():
     images = list_image_files("resource")
     upload = Ali1688Upload()
     image_search = Ali1688ImageSearch()
-    urls = []
-    for images in images:
-        res = upload.upload(filename=images)
+    image2url = {}
+    for image in images:
+        res = upload.upload(filename=image)
         image_id = res.json().get("data", {}).get("imageId", "")
         if not image_id:
             raise Exception("not image id")
@@ -21,8 +21,8 @@ def get_image_search_url():
         # search goods by image id
         req = image_search.request(image_id=image_id)
         print('1688: ', req.url)
-        urls.append(req.url)
-    return urls
+        image2url[image] = req.url
+    return image2url
 
 
 # 获取目录下所有图片的路径

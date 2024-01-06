@@ -1,5 +1,6 @@
+DEFAULT_1688_URL_PREFIX = "https://s.1688.com/selloffer/"
 
-DOMAIN_1688 = "https://www.1688.com/"
+LOGIN_URL_PREFIX = 'https://login.taobao.com'
 
 # 登录
 LOGIN_URL = "https://login.taobao.com/?redirect_url=https%3A%2F%2Flogin.1688.com%2Fmember%2Fjump.htm%3Ftarget%3Dhttps%253A%252F%252Flogin.1688.com%252Fmember%252FmarketSigninJump.htm%253FDone%253D%25252F%25252Fmy.1688.com%25252F&style=tao_custom&from=1688web"
