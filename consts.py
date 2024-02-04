@@ -22,3 +22,24 @@ headers = {
 
 # 查询图片api的app_key
 app_key = "12574478"
+
+# 每张图片爬取商品数量
+GET_GOODS_INFO_COUNT = 10
+
+# 图片在Excel中的统一宽度
+PIC_WIDTH = 90
+
+# 图片在Excel中的统一高度
+PIC_HEIGHT = 90
+
+# Excel中，图片单元格的宽度
+PIC_CELL_WIDTH = 12.25
+
+# Excel中，图片单元格的高度
+PIC_CELL_HEIGHT = 80.10
+
+# Excel中，商品url单元格的高度
+GOODS_URL_CELL_WIDTH = 60
+
+# Excel中，商品标题单元格的高度
+GOODS_TITLE_CELL_WIDTH = 60
