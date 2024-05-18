@@ -1,5 +1,5 @@
-from image_search.run_image_search import get_image_search_url
 from sqlit_spider.run_1688 import start_crawler
+from src.image_search.run_image_search import get_image_search_url
 
 # 总入口
 # 1.获取图片搜索url列表

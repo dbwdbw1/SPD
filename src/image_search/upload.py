@@ -4,10 +4,10 @@ from typing import Dict
 
 import requests
 
-import utils.common
-import utils.request
-from consts import headers, app_key
-from image_search.token import Token
+import src.utils.common
+import src.utils.request
+from src.consts import headers, app_key
+from src.image_search.token import Token
 
 
 def get_data(filename: str) -> Dict[str, str]:
@@ -50,11 +50,11 @@ class Ali1688Upload(Token):
 
     def upload(self, filename: str) -> requests.request:
         # upload image
-        t = utils.common.now()
+        t = src.utils.common.now()
         data = get_data(filename=filename)
         params = self.get_params(data=data.get("data", ""), t=t)
         headers["Content-Type"] = "application/x-www-form-urlencoded"
-        req = utils.request.request_post(
+        req = src.utils.request.request_post(
             url=self.upload_url,
             params=params,
             headers=headers,

@@ -2,8 +2,8 @@ from typing import Dict
 
 import requests
 
-from consts import headers
-from utils.request import request_get
+from src.consts import headers
+from src.utils.request import request_get
 
 
 # 图片搜索 1688 业务类

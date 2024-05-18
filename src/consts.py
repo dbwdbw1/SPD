@@ -43,3 +43,17 @@ GOODS_URL_CELL_WIDTH = 60
 
 # Excel中，商品标题单元格的高度
 GOODS_TITLE_CELL_WIDTH = 60
+
+# 聊天界面固定话术
+CHAT_QUESTIONS = [
+    '你好'
+]
+
+# 聊天界面等待回复的最大轮询次数
+MAX_POLLING_TIMES = 10
+
+# 聊天界面单词轮询等待回复的秒数
+POLLING_WAIT_SECONDS = 6
+
+# 无回复的预设
+NO_REPLY_MESSAGE = "no_reply"

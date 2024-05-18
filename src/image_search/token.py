@@ -3,11 +3,11 @@ from typing import Dict
 import requests
 from requests.cookies import RequestsCookieJar
 
-import consts
-import utils.common
-from consts import app_key
-from image_search.sign import Sign
-from utils.request import request_get
+import src.utils.common
+from src import consts
+from src.consts import app_key
+from src.image_search.sign import Sign
+from src.utils.request import request_get
 
 
 # 图片搜索的参数prepare
@@ -23,7 +23,7 @@ class Token(object):
         params = {
             "jsv": "2.7.0",
             "appKey": app_key,
-            "t": str(utils.common.now()),
+            "t": str(src.utils.common.now()),
             "api": self.api,
             "v": "1.0",
             "type": "json",

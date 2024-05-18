@@ -1,7 +1,7 @@
 import os
 
-from image_search.search import Ali1688ImageSearch
-from image_search.upload import Ali1688Upload
+from src.image_search.search import Ali1688ImageSearch
+from src.image_search.upload import Ali1688Upload
 
 
 # 1.扫描固定路径图片

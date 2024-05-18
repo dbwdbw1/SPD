@@ -9,11 +9,13 @@ from openpyxl.drawing.image import Image as ExcelImage
 from openpyxl.styles import Font
 from openpyxl.worksheet.hyperlink import Hyperlink
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
-import consts
-from sqlit_spider.sqlite3_model import SessionContext, GoodsInfo
+from src import consts
+from src.chat.chat import chat
+from src.sqlit_spider.sqlite3_model import SessionContext, GoodsInfo
 
 
 def driver_init():
@@ -114,12 +116,17 @@ def get_goods_detail(driver, link, original_window):
                 data.append(item)
             aliwangwang_button.click()
             try:
-                driver.find_element(By.XPATH, '//button[text()="进入网页版"]').click()
+                button = driver.find_element(By.XPATH, '//button[text()="进入网页版"]')
+                button.click()
                 current_handle_index = driver.window_handles.index(driver.current_window_handle)
                 driver.switch_to.window(driver.window_handles[current_handle_index + 1])
                 driver.find_element(By.XPATH, '//span[@class="next-btn-helper" and text()="使用网页版"]').click()
-            except Exception:
-                print('没有弹窗选择旺旺版本，默认进入网页版')
+            except NoSuchElementException:
+                try:
+                    button = driver.find_element(By.XPATH, '//button[text()="优先使用网页版"]')
+                    button.click()
+                except NoSuchElementException:
+                    print('没有弹窗选择旺旺版本，默认进入网页版')
 
             # 点完弹窗，切换回聊天窗口
             for handle in driver.window_handles:
@@ -128,6 +135,7 @@ def get_goods_detail(driver, link, original_window):
                     break
             time.sleep(2)
             print('商品信息获取完毕')
+            chat(driver)
             # 关闭聊天窗口
             driver.close()
 
@@ -250,7 +258,7 @@ def crawl_by_image_url(driver, image_name, image_url):
             driver.quit()
             sys.exit()
     # 提供的 cookie 字符串
-    cookie_string = 'mtop_partitioned_detect=1; _m_h5_tk=68e919303ae296e3590c8c90cc7ee29c_1707025982338; _m_h5_tk_enc=45c835786dda208e6d5def9ea18e5f24; lid=dbwdbw1; ali_ab=180.111.221.27.1707016441129.5; cna=qpnxHcLZDykCATFBUP4VLqTU; taklid=6a0748690e0048a996484d47c1ed1f53; mwb=ng; xlly_s=1; cookie2=1f0ac2b0f8f1b5955a0c41d9d918121d; _tb_token_=e3ef33abe5138; enc=lhjdhx3Ve3AgvYkwk%2BgOxZ84vZulpGk4K9%2Bf1LWKtrgQU1JDTXmJpkndHBV43C7vpZjk03vCVEeIyHCCCyHb0w%3D%3D; tracknick=dbwdbw1; cna=m9dLGyl9DE4CAbRmjwLdtIsy; inquiry_preference=webIM; cookie1=AVdHXHZcvIGj9hg1z5Z3ZebSVUEfwSNLF%2BDmf8WRKcc%3D; cookie17=UUplaXFNqNx8Lg%3D%3D; sgcookie=E1004wyhm7qXKHOX8nqZgmhlWoP%2B7MQ5sPoa%2B59BbWa6QuMu3aWXVXZ656NKtjbIfNkhaSi6I%2B69Ty1xIoX23EuDDtljWHvu5d3kP0fuLzSsSxbde6Fs6Vk3bzYMvCUaSUst; t=9c762f68f95bccbc5f663bdfa0e59289; sg=187; csg=29b2b728; unb=2248476908; uc4=nk4=0%40BQOkCq2f08%2BcO6u3hX8s%2Fnda&id4=0%40U2gvJul3CLHC35j%2FHiGTddjgo%2FsN; __cn_logon__=true; __cn_logon_id__=dbwdbw1; ali_apache_track=c_mid=b2b-2248476908|c_lid=dbwdbw1|c_ms=1; ali_apache_tracktmp=c_w_signed=Y; _nk_=dbwdbw1; last_mid=b2b-2248476908; _csrf_token=1707017096942; is_identity=buyer; __mwb_logon_id__=dbwdbw1; tfstk=e-Kpb_mQZfcHbXPVSD3M4a1ArAHGwHpFBBJbq_f3PCd9F1XQPuZWW_d666whx9m7VQAGOpvoaue56BZl-3pz2T9Wav5oLVveLgSSijf-mpJFIPp0UmDlawORVjcmjv3aMiSW-fGGbiNsgSlMn3TXfxOFqBm102xGpwC8q1ERtercRsNf_uZ599QLWp1TVut14HtDD20UisBuRAHTzz7CQ7DWVm3EpkPfBsDCRzzPrOWOiAHTzz7CQOCmduazzaXN.; isg=BFtbYbkDul1au8d_QmnUGssj6r_FMG8yttLOI02TV9pxLHoO1QJ4gDrtxoyiDMcq'
+    cookie_string = 'cookie2=12dca38044b9eebb6119cecc2b2f3ebd; t=e391896bac9e77dfc621162b3976fe69; _tb_token_=fe40febe83ef5; lid=dbwdbw1; mtop_partitioned_detect=1; _m_h5_tk=3061f36419db970279658b13568677e7_1716023775098; _m_h5_tk_enc=a16025b1c006895bfcb335da8467907a; cna=qpnxHcLZDykCATFBUP4VLqTU; xlly_s=1; cookie1=AVdHXHZcvIGj9hg1z5Z3ZebSVUEfwSNLF%2BDmf8WRKcc%3D; cookie17=UUplaXFNqNx8Lg%3D%3D; sgcookie=E100pM%2BmH%2Bd0RnbLvHgdhl7yq3wKlDRBYHQv8KdFFX3aFrVo4JrGJ0K2283t26vjqKvPcZBLpv7ZtUrP03l1qjSoqlILbuLAWRhJvcYzRbPpLrBixyYZrzUnuuCKShmj2wsF; sg=187; csg=fa1b88ac; unb=2248476908; uc4=nk4=0%40BQOkCq2f08%2BcO6rOobhvoW4C&id4=0%40U2gvJul3CLHC35j%2FHiB27MSDKPNg; __cn_logon__=true; __cn_logon_id__=dbwdbw1; ali_apache_track=c_mid=b2b-2248476908|c_lid=dbwdbw1|c_ms=1; ali_apache_tracktmp=c_w_signed=Y; _nk_=dbwdbw1; last_mid=b2b-2248476908; _csrf_token=1716013718867; __mwb_logon_id__=dbwdbw1; mwb=ng; EGG_SESS=Sf26WL-u1OCwoz_eMg6D8nA2KnRp0laSPI3dXAbeSlZPjyVDddhLmyF2fV1ft6-06lfrW6VZfLlvB1NYZkw6IHJ-L5bL6o6BqDLDACCni0fJU7otmz3QpySzqhXyyEYCEKc3zaf_o2raOY-7rsFbhMqIZHaikfGZUwM8GMq4e1SkTxZXsargIfOeGu806QpALF7DjyH3F4k9p3caDkpn8RZMr01Mqb9p3ommnzr4TAhTVWYGpa0gmOUF7tsSVVXp9wMjUyzCEDrnpEdDQyGTwo8HmelrTYJgwWLOUYuSwfbk3lFHamvCXZ_dDJ5deTK3H331jEDtGdKs250oJck-SZrdLY2y1IvP36MOvKNNmwb7WsbOGq3vDjY5tENyybVKAjoWDyGEZarYqJGIOt2fAgPP56o90YdXjKGY3xrg3bmmr8j2Crf_FWgbhw9EwZMZKxAONCrNWOJlXBQBvH9rrkdc1xFwua7iUnCqTQTypNwGFp9ej9dDiedscORW80zADY50svzI0hTXqzSwUu6elLmHF4brAWBYARmjaZvEVKWjb_xfc6nZtjWPJU7FTKfimN8tt5H9mWGsL3GULvyk1TwnB__ZADfbv_EJHOXA20VdI1eKX1w6l9xxVTH41QRr0uJVF8hb5-4vjhzeMKKwuNr-PDUPcn6JYc-mqCP5kudLikwPuGUsEmCEwbO7RdIXLeFGAJc7thnh1ZaoVOYfRdmKz0i-gofJ5Fa1-S4NVoCyWG2uSdCNgEhdMIYSXqWDigC-PmuRtVe5yeiaRp9KX_aHL9Gm2YZgvETghC7zWFxUg8RR2erg3HNJX4U_7GOYWmTfkjgqbWUb5NZFTju41h7k7uD2MBw0bK1wvjh6B3RJDIh_zA4XbCtB6ue3UzFve7rTqAHeVX4ohDY3dEC88GHQOWNHLumdTJrgmDJdKAxN2Nr2XpA5cAVUNQIZmSQaDJfHQB94gjxO_QinrC7a2SZnvF9SCvf0DImz360ANv8rvo6ggVjdp8mBobQWiyAN7l2IvtKuCYy9zTPRTbrutWfWakGHp7LgEDBRyArJxA3yxUkgB756QQ4NI9PfnUKRtY_1kaZff8hmNOdfU3MOE5cEbTXsseZ12Yz5_2qfmxnIB1b7naMDvrGVaf0eVxhrP9wW4hkn5o0RvK-K24DY4LB7MHJWs7LpP9o_0UFXYFHK6YJbnymNsFeFvzMqEYw3dNz9neaEqoPlM5jf7nk5xWogi1EY8Tm3cVVA-tss2S1K_MmFzzRK0vfxRTo8Ryl2z71jGuDWGNSgGjjnFJqNrYArwZfTZwMA_5j4tRvPf88XQtkjWcHBVmqzrBCiROA5141FN7WmHhhashE3mW1EpVbVKYhYAeFend3ioP6fJMI-_1yf_Ta8uEwDrdWxIRfTop576oH7RvzWYNwaqeTSVaQDxb-MYyXyf2Fft1M9ohI5K0CljFuE9uo51EIn1jWCCglK4BhV5qS6-WO-HpqpB9qcQqbostqJYqWbHUJbPR056xp8E8OddtvC8xCAHV0ukzHULe_RuxIj5C6IeGcQfMcDKGjXOnFhQU50C50DUX9mLnxlIyJyYzKvoLiIfkmuFgvhQs99oMFY7vuH7R23CpgCIrDtBPfzhJFRZoa5Z8PHxG3pnXrIjajqoXaUGIVz4Evjt97bT5vYmnTAjkZGvYr6JyJlVSfaINdqt6OF-gGUMrEsH8QA8abODcFKslB77DKN_5EK4NrmIMmXsEQSvgh840nbLMhFnKirmhFicRdsnnbPu9KnW1OD9OJIZt96; isg=BBcXJJ4HPSb_-LsLJtXQBpe3pothXOu-1Mq8-2lEMOZNmDfacSi1D6K--jiGcMM2; tfstk=fBl2Hj4orIdqaAHjLkNa42-vM3NYcWKC3fZ_SV0gloqcGssiUPaCjG0MDclaqS2thlZbb5utYUtBOBgxk5eHAHOB4pI-r5EM150JZgKTsHtBNT_uHnNiCcHOTShrw9NCy3B7nHmuqbCUVDG6LVZPs67Lu-qp9u5Gsbzqzk0DB1fiaryx1PmpLd2jI2eKGVRNwSgEE74IkI5ztq4EcuiHt_PoP4m_pYKOO8nr_Jh0LNXmzfr4Kj2P510roPmgQYKFOrPjUJlqHFIooDZqKS318ngzLYyLr8bNnSMIRfeniISLVJUZcuiHt_PuIgoVXzV3FfHVjOy0yzrBzUS1UsQI7d682OBTULUzAeLdBOe0yzrBzUWOB8lLzkTpJ'
 
     # 将字符串分割成键值对
     cookies = [cookie.split("=") for cookie in cookie_string.split("; ")]

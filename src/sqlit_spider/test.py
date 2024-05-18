@@ -1,5 +1,4 @@
 from sqlite3_model import GoodsInfo, SessionContext, GoodsDetail
-import time
 
 # 从GoodsInfo表中取出所有数据
 with SessionContext() as session:
